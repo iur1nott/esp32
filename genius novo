@@ -1,0 +1,183 @@
+#include <Arduino.h>
+#define btn_B 19
+#define btn_R 21
+#define btn_G 23
+#define btn_Y 18
+#define led_R 12
+#define led_G 14
+#define led_Y 13
+#define led_B 25
+#define T_RODADAS 5
+
+
+bool deBouncing(bool estado, int pin);
+void ChecarBotoes();
+void acenderLeds();
+void perdeu();
+void ganhou();
+
+
+int rodada;
+int vetor_leds[T_RODADAS];
+int vetor_pressionado[T_RODADAS];
+int contador_cliques;
+bool flag_btnY = false;
+bool flag_btnG = false;
+bool flag_btnR = false;
+bool flag_btnB = false;
+bool flag_inicio;
+
+
+void setup() {
+Serial.begin(115200);
+pinMode(btn_B,INPUT_PULLUP);
+pinMode(btn_R,INPUT_PULLUP);
+pinMode(btn_G,INPUT_PULLUP);
+pinMode(btn_Y,INPUT_PULLUP);  
+pinMode(led_R,OUTPUT);
+pinMode(led_G,OUTPUT);
+pinMode(led_Y,OUTPUT);
+pinMode(led_B,OUTPUT);
+
+for(int i=0;i<T_RODADAS;i++){
+  vetor_leds[i] = random(0,3);
+  Serial.println(vetor_leds[i]);
+  }
+flag_inicio = true;
+rodada = 1;
+contador_cliques = 0;
+}
+
+
+void loop() {
+if(flag_inicio==true){
+  acenderLeds();
+}
+ChecarBotoes();
+if(contador_cliques==rodada){
+  rodada++;
+  if(rodada==T_RODADAS+1){
+    ganhou();
+  }
+  contador_cliques=0;
+  flag_inicio=true;
+}
+}
+
+
+void acenderLeds(){
+  for(int i=0;i<rodada;i++){
+    switch(vetor_leds[i]){
+      case 0: // vermelho
+      digitalWrite(led_R,HIGH);
+      delay(500);
+      digitalWrite(led_R,LOW);
+      case 1: //verde
+      digitalWrite(led_G,HIGH);
+      delay(500);
+      digitalWrite(led_G,LOW);
+      case 2: //amarelo
+      digitalWrite(led_Y,HIGH);
+      delay(500);
+      digitalWrite(led_Y,LOW);
+      case 3: //azul
+      digitalWrite(led_B,HIGH);
+      delay(500);
+      digitalWrite(led_B,LOW);
+    }
+delay(500);
+digitalWrite(led_B,LOW);
+digitalWrite(led_Y,LOW);
+digitalWrite(led_G,LOW);
+digitalWrite(led_R,LOW);
+if(i<rodada-1){
+  Serial.println("fiz um delay");
+  delay(500);
+}
+  } 
+  flag_inicio = false;
+}
+
+void ChecarBotoes(){
+  if(deBouncing(flag_btnY,btn_Y)==false){
+    flag_btnY=true;
+  }
+  if(deBouncing(flag_btnY,btn_Y)==true && flag_btnY==true){
+    Serial.println("Soltei o amarelo");
+    vetor_pressionado[contador_cliques]=1;
+    if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
+      perdeu();
+    }
+    contador_cliques++;
+    flag_btnY = false;
+  }
+
+if(deBouncing(flag_btnR,btn_R)==false){
+    flag_btnR=true;
+  }
+  if(deBouncing(flag_btnR,btn_R)==true && flag_btnR==true){
+    Serial.println("Soltei o vermelho");
+    vetor_pressionado[contador_cliques]=1;
+    if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
+      perdeu();
+    }
+    contador_cliques++;
+    flag_btnR = false;
+  }
+
+if(deBouncing(flag_btnG,btn_G)==false){
+    flag_btnG=true;
+  }
+  if(deBouncing(flag_btnG,btn_G)==true && flag_btnG==true){
+    Serial.println("Soltei o verde");
+    vetor_pressionado[contador_cliques]=1;
+    if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
+      perdeu();
+    }
+    contador_cliques++;
+    flag_btnG = false;
+  }
+
+if(deBouncing(flag_btnB,btn_B)==false){
+    flag_btnB=true;
+  }
+ if(deBouncing(flag_btnB,btn_B)==true && flag_btnB==true){
+    Serial.println("Soltei o azul");
+    vetor_pressionado[contador_cliques]=1;
+    if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
+      perdeu();
+    }
+    contador_cliques++;
+    flag_btnB = false;
+  }
+}
+
+
+void perdeu(){
+  Serial.println("PERDEU!");
+  for(;;){
+    digitalWrite(led_R,!digitalRead(led_R));
+    delay(150);
+  }
+}
+
+
+void ganhou(){
+  Serial.println("GANHOU...");
+  for(;;){
+    digitalWrite(led_G,!digitalRead(led_G));
+    delay(350);
+    digitalWrite(led_Y,!digitalRead(led_Y));
+    delay(150);
+    digitalWrite(led_R,!digitalRead(led_R));
+    delay(350);
+  }
+}
+bool deBouncing (bool estado,int pin){
+  bool estadoAtual = digitalRead(pin);
+  if(estadoAtual!=estado){
+    delay(7);
+    estadoAtual = digitalRead(pin);
+  }
+  return estadoAtual;
+  }
