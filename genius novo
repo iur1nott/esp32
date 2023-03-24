@@ -7,6 +7,7 @@
 #define led_G 14
 #define led_Y 13
 #define led_B 25
+#define buzzer 35
 #define T_RODADAS 5
 
 
@@ -108,7 +109,7 @@ void ChecarBotoes(){
   }
   if(deBouncing(flag_btnY,btn_Y)==true && flag_btnY==true){
     Serial.println("Soltei o amarelo");
-    vetor_pressionado[contador_cliques]=1;
+    vetor_pressionado[contador_cliques]=2;
     if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
       perdeu();
     }
@@ -121,7 +122,7 @@ if(deBouncing(flag_btnR,btn_R)==false){
   }
   if(deBouncing(flag_btnR,btn_R)==true && flag_btnR==true){
     Serial.println("Soltei o vermelho");
-    vetor_pressionado[contador_cliques]=1;
+    vetor_pressionado[contador_cliques]=0;
     if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
       perdeu();
     }
@@ -147,7 +148,7 @@ if(deBouncing(flag_btnB,btn_B)==false){
   }
  if(deBouncing(flag_btnB,btn_B)==true && flag_btnB==true){
     Serial.println("Soltei o azul");
-    vetor_pressionado[contador_cliques]=1;
+    vetor_pressionado[contador_cliques]=3;
     if(vetor_pressionado[contador_cliques]!=vetor_leds[contador_cliques]){
       perdeu();
     }
@@ -175,6 +176,9 @@ void ganhou(){
     delay(150);
     digitalWrite(led_R,!digitalRead(led_R));
     delay(350);
+    digitalWrite(led_B,!digitalRead(led_B));
+    delay(150);
+    
   }
 }
 bool deBouncing (bool estado,int pin){
@@ -185,4 +189,3 @@ bool deBouncing (bool estado,int pin){
   }
   return estadoAtual;
   }
-
